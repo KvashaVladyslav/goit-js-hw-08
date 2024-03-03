@@ -69,7 +69,7 @@ const gallery = document.querySelector(".gallery");
 const galleryElements = images
   .map(
     ({ preview, original, description }) => `
-<li class="gallery-item>
+<li class="gallery-item">
     <a class="gallery-link" href="${original}">
       <img class="gallery-image" src="${preview}" data-source="${original}" alt="${description}" />
     </a>
@@ -83,8 +83,23 @@ gallery.insertAdjacentHTML("beforeend", galleryElements);
 gallery.addEventListener("click", (event) => {
   event.preventDefault();
   if (event.target.nodeName === "IMG") {
-    const instance = basicLightbox
-      .create(`<img src="${event.target.dataset.source}"/>`)
-      .show();
+    const instance = basicLightbox.create(
+      `<img src="${event.target.dataset.source}">`,
+      {
+        onShow: (instance) => {
+          document.addEventListener("keydown", onEscKeyPress);
+        },
+        onClose: (instance) => {
+          document.removeEventListener("keydown", onEscKeyPress);
+        },
+      }
+    );
+    instance.show();
+
+    function onEscKeyPress(e) {
+      if (e.key === "Escape") {
+        instance.close();
+      }
+    }
   }
 });
